@@ -19,6 +19,19 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
+        exclude 'com/itextpdf/io/font/cmap_info.txt'
+        exclude'com/itextpdf/io/font/cmap/MSungStd-Light.properties'
+        exclude  'com/itextpdf/io/font/cmap/STSong-Light.properties'
+        exclude 'com/itextpdf/io/font/cmap/HYSMyeongJoStd-Medium.properties'
+        exclude 'com/itextpdf/io/font/cmap/MSung-Light.properties'
+        exclude 'com/itextpdf/io/font/cmap/STSongStd-Light.properties'
+        exclude 'com/itextpdf/io/font/cmap/HYGoThic-Medium.properties'
+        exclude  'com/itextpdf/io/font/cmap/HYSMyeongJo-Medium.properties'
+        exclude 'com/itextpdf/io/font/cmap/KozMinPro-Regular.properties'
+        exclude 'com/itextpdf/io/font/cmap/MHei-Medium.properties'
+        exclude 'com/itextpdf/io/font/cmap/HeiseiMin-W3.properties'
+        exclude 'com/itextpdf/io/font/cmap/HeiseiKakuGo-W5.properties'
+        exclude 'com/itextpdf/io/font/cmap/cjk_registry.properties'
     }
     buildTypes {
         release {
@@ -45,5 +58,7 @@ dependencies {
     implementation "com.google.code.gson:gson:2.7"
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'org.apache.httpcomponents:httpmime:4.3.6'
-
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+    implementation 'com.itextpdf:itext7-core:7.0.2'
 }

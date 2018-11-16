@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -27,11 +28,20 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.android.volley.VolleyError;
+import com.bumptech.glide.Glide;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.learn.myapplication.volley.Volley;
 import com.learn.myapplication.volley.VolleyNetworkRequest;
 
 import java.io.File;
 
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
     private ArrayList<String> permissionsToRequest;
     private ArrayList<String> permissionsRejected = new ArrayList<>();
     private ArrayList<String> permissions = new ArrayList<>();
-
+    String separator = "/";
+    public  final String DEST = Environment.getExternalStorageDirectory().getPath() + separator+"multiple_images.pdf";
     private final static int ALL_PERMISSIONS_RESULT = 107;
     private final static int IMAGE_RESULT = 200;
     ProgressBar bar;
@@ -66,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
         FloatingActionButton fab = findViewById(R.id.fab);
         Button button=findViewById(R.id.upload);
         Button b1=findViewById(R.id.uploadV);
+
         bar=(ProgressBar)findViewById(R.id.progressStatus);
         context= this;
         button.setOnClickListener(new View.OnClickListener()
@@ -92,7 +104,13 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
                 startActivityForResult(getPickImageChooserIntent(), IMAGE_RESULT);
             }
         });
-
+        Button b2=findViewById(R.id.button);
+        b2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+createPdf();
+            }
+        });
 
         permissions.add(CAMERA);
         permissions.add(WRITE_EXTERNAL_STORAGE);
@@ -110,6 +128,32 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
 
     }
 
+    public void createPdf()
+    {
+        Image image;
+        try {
+
+
+            File file = new File(DEST);
+            file.getParentFile().mkdirs();
+            //ImageDataFactory.create(picUri.getPath())
+            image = new Image(ImageDataFactory.create(filePath));
+            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(DEST));
+            Document doc = new Document(pdfDoc, new PageSize(image.getImageWidth(), image.getImageHeight()));
+
+            pdfDoc.addNewPage(new PageSize(image.getImageWidth(), image.getImageHeight()));
+            // Notice that now it is not necessary to set image position,
+            // because images are not overlapped while adding.
+            image.scaleToFit(image.getImageWidth(), image.getImageWidth());
+            doc.add(image);
+            doc.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
     public Intent getPickImageChooserIntent() {
 
         Uri outputFileUri = getCaptureImageOutputUri();
@@ -177,7 +221,8 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
                 filePath = getImageFilePath(data);
                 if (filePath != null) {
                     Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
-                    imageView.setImageBitmap(selectedImage);
+                    Glide.with(this).load(selectedImage).into(imageView);
+                   // imageView.setImageBitmap(selectedImage);
                 }
             }
 
@@ -314,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements ProgressRequestBo
     public void uploadFile()
     {
         File a= new File(filePath);
-        ProgressRequestBody albumImageBody = new ProgressRequestBody(a,this,context.getContentResolver().getType(picUri));
+        ProgressRequestBody albumImageBody = new ProgressRequestBody(a,this,"application/jpeg");
         MultipartBody.Part coverImagePart = MultipartBody.Part.createFormData("fileToUpload",
                 a.getName(), albumImageBody);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
